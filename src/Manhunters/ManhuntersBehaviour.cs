@@ -2,22 +2,15 @@
 using TaleWorlds.CampaignSystem.Party;
 using TaleWorlds.CampaignSystem.Settlements;
 using TaleWorlds.Core;
-using TaleWorlds.Localization;
 using TaleWorlds.ObjectSystem;
 using TaleWorlds.CampaignSystem.Actions;
 using TaleWorlds.Library;
-using Helpers;
-using TaleWorlds.MountAndBlade;
 using TaleWorlds.CampaignSystem.Party.PartyComponents;
 using TaleWorlds.CampaignSystem.Roster;
 using TaleWorlds.CampaignSystem.MapEvents;
-using System;
 using TaleWorlds.CampaignSystem.Encounters;
-using TaleWorlds.LinQuick;
 using System.Collections.Generic;
 using System.Linq;
-using TaleWorlds.CampaignSystem.ComponentInterfaces;
-using TaleWorlds.CampaignSystem.GameComponents;
 
 namespace Manhunters
 {
@@ -117,7 +110,7 @@ namespace Manhunters
 
         }
 
-        private void DeclareWar()
+        private void DeclareWarBetweenManhuntersAndBandits()
         {
             foreach (Clan clan in Clan.BanditFactions)
             {
@@ -171,7 +164,7 @@ namespace Manhunters
                     manhaunterClan = clan;
                 }
             }
-            DeclareWar();
+            DeclareWarBetweenManhuntersAndBandits();
         }
 
         private void OnSettlementEntered(MobileParty mobileParty, Settlement settlement, Hero arg3)
