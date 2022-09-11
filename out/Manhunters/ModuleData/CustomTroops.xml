@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<NPCCharacters>
+   <!-- Manhunters -->
+  <NPCCharacter id="cs_village_youth" default_group="Infantry" name="{=ZxmBdWTu}Village Youth" level="6" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="35" />
+      <skill id="Bow" value="25" />
+      <skill id="OneHanded" value="30" />
+      <skill id="Polearm" value="25" />
+      <skill id="Riding" value="15" />
+      <skill id="Throwing" value="35" />
+      <skill id="TwoHanded" value="25" />
+    </skills>
+  
+    <upgrade_targets>
+      <upgrade_target id="NPCCharacter.cs_village_scout" />
+      <upgrade_target id="NPCCharacter.cs_trained_youth" />
+    </upgrade_targets>
+</NPCCharacter>
+
+<NPCCharacter id="cs_village_scout" default_group="Ranged" name="{=ZxmBdWTu}Village Scout" level="11" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="55" />
+      <skill id="Bow" value="55" />
+      <skill id="OneHanded" value="40" />
+      <skill id="Polearm" value="35" />
+      <skill id="Riding" value="25" />
+      <skill id="Throwing" value="45" />
+      <skill id="TwoHanded" value="35" />
+    </skills>
+   
+    <upgrade_targets>
+      <upgrade_target id="NPCCharacter.cs_lookout" />
+      <upgrade_target id="NPCCharacter.cs_village_ranger" />
+    </upgrade_targets>
+</NPCCharacter>
+
+<NPCCharacter id="cs_lookout" default_group="Ranged" name="{=ZxmBdWTu}Lookout" level="16" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="85" />
+      <skill id="Bow" value="85" />
+      <skill id="OneHanded" value="45" />
+      <skill id="Polearm" value="35" />
+      <skill id="Riding" value="30" />
+      <skill id="Throwing" value="50" />
+      <skill id="TwoHanded" value="40" />
+    </skills>
+   
+    <upgrade_targets>
+    </upgrade_targets>
+</NPCCharacter>
+
+<NPCCharacter id="cs_village_ranger" default_group="Cavalry" name="{=ZxmBdWTu}Village Ranger" level="16" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="95" />
+      <skill id="Bow" value="105" />
+      <skill id="OneHanded" value="75" />
+      <skill id="Polearm" value="45" />
+      <skill id="Riding" value="70" />
+      <skill id="Throwing" value="55" />
+      <skill id="TwoHanded" value="45" />
+    </skills>
+   
+
+  
+    <upgrade_targets>
+      <upgrade_target id="NPCCharacter.cs_village_sherrif" />
+    </upgrade_targets>
+</NPCCharacter>
+
+<NPCCharacter id="cs_village_sherrif" default_group="Cavalry" name="{=ZxmBdWTu}Village Sherrif" level="21" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="105" />
+      <skill id="Bow" value="145" />
+      <skill id="OneHanded" value="80" />
+      <skill id="Polearm" value="55" />
+      <skill id="Riding" value="110" />
+      <skill id="Throwing" value="60" />
+      <skill id="TwoHanded" value="55" />
+    </skills>
+   
+    <upgrade_targets>
+    </upgrade_targets>
+</NPCCharacter>
+
+
+<NPCCharacter id="cs_trained_youth" default_group="Infantry" name="{=ZxmBdWTu}Trained Youth" level="11" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="60" />
+      <skill id="Bow" value="35" />
+      <skill id="OneHanded" value="60" />
+      <skill id="Polearm" value="45" />
+      <skill id="Riding" value="25" />
+      <skill id="Throwing" value="45" />
+      <skill id="TwoHanded" value="55" />
+    </skills>
+   
+
+
+
+    <upgrade_targets>
+      <upgrade_target id="NPCCharacter.cs_town_guard" />
+      <upgrade_target id="NPCCharacter.cs_town_marksman" />
+    </upgrade_targets>
+</NPCCharacter>
+
+<NPCCharacter id="cs_burgher" default_group="Infantry" name="{=ZxmBdWTu}Burgher" level="6" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="35" />
+      <skill id="Bow" value="25" />
+      <skill id="OneHanded" value="30" />
+      <skill id="Polearm" value="25" />
+      <skill id="Riding" value="15" />
+      <skill id="Throwing" value="35" />
+      <skill id="TwoHanded" value="25" />
+    </skills>
+
+  
+  
+    <upgrade_targets>
+      <upgrade_target id="NPCCharacter.cs_righteous_citizen" />
+      <upgrade_target id="NPCCharacter.cs_trained_youth" />
+    </upgrade_targets>
+</NPCCharacter>
+
+<NPCCharacter id="cs_town_guard" default_group="Infantry" name="{=ZxmBdWTu}Town Guard" level="16" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="80" />
+      <skill id="Bow" value="45" />
+      <skill id="OneHanded" value="90" />
+      <skill id="Polearm" value="50" />
+      <skill id="Riding" value="35" />
+      <skill id="Throwing" value="65" />
+      <skill id="TwoHanded" value="75" />
+    </skills>
+  
+    <upgrade_targets>
+    </upgrade_targets>
+</NPCCharacter>
+
+<NPCCharacter id="cs_town_marksman" default_group="Ranged" name="{=ZxmBdWTu}Town Marksman" level="16" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="80" />
+      <skill id="Bow" value="95" />
+      <skill id="OneHanded" value="50" />
+      <skill id="Polearm" value="50" />
+      <skill id="Riding" value="35" />
+      <skill id="Throwing" value="65" />
+      <skill id="TwoHanded" value="45" />
+    </skills>
+  
+    <upgrade_targets>
+    </upgrade_targets>
+</NPCCharacter>
+
+<NPCCharacter id="cs_righteous_citizen" default_group="Infantry" name="{=ZxmBdWTu}Righteous Citizen" level="11" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="55" />
+      <skill id="Bow" value="35" />
+      <skill id="OneHanded" value="70" />
+      <skill id="Polearm" value="35" />
+      <skill id="Riding" value="35" />
+      <skill id="Throwing" value="40" />
+      <skill id="TwoHanded" value="35" />
+    </skills>
+
+
+
+    <upgrade_targets>
+      <upgrade_target id="NPCCharacter.cs_veteran_manhunter" />
+    </upgrade_targets>
+</NPCCharacter>
+
+
+<NPCCharacter id="cs_veteran_manhunter" default_group="Cavalry" name="{=ZxmBdWTu}Veteran Manhunter" level="21" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="155" />
+      <skill id="Bow" value="65" />
+      <skill id="OneHanded" value="200" />
+      <skill id="Polearm" value="75" />
+      <skill id="Riding" value="150" />
+      <skill id="Throwing" value="65" />
+      <skill id="TwoHanded" value="110" />
+    </skills>
+     <upgrade_targets>
+      <upgrade_target id="NPCCharacter.cs_sherrif" />
+    </upgrade_targets>
+</NPCCharacter>
+
+<NPCCharacter id="cs_sherrif" default_group="Cavalry" name="{=ZxmBdWTu}Sherrif" level="26" occupation="Soldier" culture="Culture.empire">
+    <face>
+      <face_key_template value="NPCCharacter.villager_empire" />
+    </face>
+    <skills>
+      <skill id="Athletics" value="205" />
+      <skill id="Bow" value="85" />
+      <skill id="OneHanded" value="250" />
+      <skill id="Polearm" value="95" />
+      <skill id="Riding" value="200" />
+      <skill id="Throwing" value="85" />
+      <skill id="TwoHanded" value="150" />
+    </skills>
+
+    <upgrade_targets>
+    </upgrade_targets>
+</NPCCharacter>
+	<NPCCharacter
+	  id="manhunter_character"
+	  default_group="Infantry"
+	  level="32"
+	  age="30"
+	  is_female="false"
+	  culture="Culture.empire"
+	  name="{=*}Manhunter Man">
+		<face>
+			<face_key_template value="BodyProperty.villager_battania" />
+		</face>
+		<skills>
+			<skill id="TwoHanded" value="240" />
+			<skill id="Athletics" value="100" />
+		</skills>
+		<Traits>
+			<Trait id="HuscarlFightingSkills" value="9" />
+		</Traits>
+		<Equipments>
+			<EquipmentRoster>
+				<equipment slot="Item0" id="Item.battania_2haxe_1_t2" />
+				<equipment slot="Body" id="Item.armored_baggy_trunks" />
+				<equipment slot="Leg" id="Item.rough_tied_boots" />
+				<equipment slot="Cape" id="Item.armored_bearskin" />
+				<equipment slot="Leg" id="Item.strapped_shoes" />
+			</EquipmentRoster>
+		</Equipments>
+	</NPCCharacter>
+</NPCCharacters>

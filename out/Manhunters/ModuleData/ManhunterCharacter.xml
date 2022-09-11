@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+<NPCCharacters>
+  <NPCCharacter 
+    id="manhunter_character" 
+    default_group="Infantry" 
+    level="32" 
+    age="30"
+    is_hero="true" 
+    is_female="false" 
+    culture="Culture.empire"
+    name="{=*}Manhunter Man">
+    <face>
+      <face_key_template value="BodyProperty.villager_battania" />
+    </face>
+    <skills>
+      <skill id="TwoHanded" value="240" />
+      <skill id="Athletics" value="100" />
+    </skills>
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="9" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster>
+        <equipment slot="Item0" id="Item.battania_2haxe_1_t2" />
+        <equipment slot="Body" id="Item.armored_baggy_trunks" />
+        <equipment slot="Leg" id="Item.rough_tied_boots" />
+        <equipment slot="Cape" id="Item.armored_bearskin" />
+      </EquipmentRoster>
+    </Equipments>
+  </NPCCharacter>
+</NPCCharacters> -->
+<NPCCharacters>
+  <NPCCharacter 
+    id="manhunter_character" 
+    default_group="Infantry" 
+    level="32" 
+    age="30"
+    is_female="false" 
+    culture="Culture.empire"
+    name="{=*}Manhunter Man">
+    <face>
+      <face_key_template value="BodyProperty.villager_battania" />
+    </face>
+    <skills>
+      <skill id="TwoHanded" value="240" />
+      <skill id="Athletics" value="100" />
+    </skills>
+    <Traits>
+      <Trait id="HuscarlFightingSkills" value="9" />
+    </Traits>
+    <Equipments>
+      <EquipmentRoster>
+        <equipment slot="Item0" id="Item.battania_2haxe_1_t2" />
+        <equipment slot="Body" id="Item.armored_baggy_trunks" />
+        <equipment slot="Leg" id="Item.rough_tied_boots" />
+        <equipment slot="Cape" id="Item.armored_bearskin" />
+	    <equipment slot="Leg" id="Item.strapped_shoes" />
+      </EquipmentRoster>
+    </Equipments>
+  </NPCCharacter>
+</NPCCharacters> 

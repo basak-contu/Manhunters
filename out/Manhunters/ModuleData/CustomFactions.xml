@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Factions>
+  <!-- Man Hunters -->
+  <Faction id="cs_manhunters"
+          banner_key="23.31.142.1356.1251.746.790.1.0.8.342.116.145.449.486.763.748.1.1.0"
+           label_color="A7655891"
+           color="FF5C2017"
+           color2="28232210"
+           alternative_color="FF5C2017"
+           alternative_color2="28232210"
+           culture="Culture.empire"
+           settlement_banner_mesh="encounter_flag_f"
+           is_minor_faction="true"
+           is_outlaw="false"
+           is_mafia="false"
+           name="{=NObV048p}Manhunters"
+           tier="4"
+           text="{=bsPd5zri}The Manhunters represent the efforts of the bourgeoisie and the aristocracy to put a hold on Calradia completely slipping from their hands. Each year, a fund is collected from every kingdom and every city in proportion to its wealth to fund the manhunters. It seems that the leading classes are aware that no matter how much infighting they may do, if anarchy takes hold, it will know no borders. ">
+  </Faction>
+</Factions>
+<!-- owner="Hero.cs_lord_manhunters_1" 
+    default_party_template="PartyTemplate.kingdom_hero_party_empire_template"
+
+-->
