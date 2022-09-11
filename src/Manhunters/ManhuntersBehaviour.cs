@@ -187,16 +187,14 @@ namespace Manhunters
         {
             int randomSettlementIndex = MBRandom.RandomInt(0, Settlement.All.Count);
             Settlement randomSettlement = Settlement.All[randomSettlementIndex];
+
             Hero manhunterHero = HeroCreator.CreateSpecialHero(manhunterCharacter, faction: manhaunterClan);
+            
             MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty(manhunterParties.Count.ToString(), manhunterHero, randomSettlement.Position2D, 2, randomSettlement, manhunterHero);
             manhunterParties.Add(manhunterMobileParty);
-            InformationManager.DisplayMessage(new InformationMessage("COUNT: " + manhunterMobileParty.MemberRoster.TotalManCount));
-            foreach (var member in manhunterMobileParty.MemberRoster.GetTroopRoster().ToList())
-            {
-                InformationManager.DisplayMessage(new InformationMessage(member.Character.StringId));
-            }
         }
 
+        // For testing
         private MobileParty SpawnManhunterPartyAtPos(Vec2 pos)
         {
             int randomSettlementIndex = MBRandom.RandomInt(0, Settlement.All.Count);
@@ -204,11 +202,6 @@ namespace Manhunters
             Hero manhunterHero = HeroCreator.CreateSpecialHero(manhunterCharacter, faction: manhaunterClan);
             MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty(manhunterParties.Count.ToString(), manhunterHero, pos, 2, randomSettlement, manhunterHero);
             manhunterParties.Add(manhunterMobileParty);
-            InformationManager.DisplayMessage(new InformationMessage("COUNT: " + manhunterMobileParty.MemberRoster.TotalManCount));
-            foreach (var member in manhunterMobileParty.MemberRoster.GetTroopRoster().ToList())
-            {
-                InformationManager.DisplayMessage(new InformationMessage(member.Character.StringId));
-            }
             return manhunterMobileParty;
         }
 
