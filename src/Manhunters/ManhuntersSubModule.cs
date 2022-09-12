@@ -24,8 +24,6 @@ namespace Manhunters
                 var initializer = (CampaignGameStarter)gameStarterObject;
 
                 initializer.AddBehavior(new ManhuntersBehaviour());
-
-                initializer.AddModel(new ManhuntersPrisonerRecruitmentCalculationModel());
             }
         }
     }

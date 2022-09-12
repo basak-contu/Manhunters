@@ -213,7 +213,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ManhuntersBehaviour.cs" />
-    <Compile Include="ManhuntersPrisonerRecruitmentCalculationModel.cs" />
     <Compile Include="ManhuntersSubModule.cs" />
     <Compile Include="ManhunterPartyComponent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
