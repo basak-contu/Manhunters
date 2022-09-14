@@ -53,8 +53,10 @@ namespace Manhunters
         {
             Invalid,
             GoingToSettlementForSellingPrisoners,
-            EngagingBandits,
-            SellingPrisoners
+            GoingToSettlementToBuyFood,
+            EngagingToBandits,
+            SellingPrisoners,
+            BuyingFood
         }
 
         public TroopRoster potentialPrisoners;
@@ -138,8 +140,9 @@ namespace Manhunters
             mobileParty.InitializeMobilePartyAroundPosition(memberRoster, prisonerRoster, position, spawnRadius, 0f);
 
             mobileParty.Aggressiveness = 0.9f + 0.1f * (float)Owner.GetTraitLevel(DefaultTraits.Valor) - 0.05f * (float)Owner.GetTraitLevel(DefaultTraits.Mercy);
-            mobileParty.ItemRoster.Add(new ItemRosterElement(DefaultItems.Grain, MBRandom.RandomInt(15, 30)));
-            
+            //mobileParty.ItemRoster.Add(new ItemRosterElement(DefaultItems.Grain, MBRandom.RandomInt(15, 30)));
+            //mobileParty.ItemRoster.Add(new ItemRosterElement)
+
             Owner.PassedTimeAtHomeSettlement = (int)(MBRandom.RandomFloat * 100f);
             
             if (spawnSettlement != null)
