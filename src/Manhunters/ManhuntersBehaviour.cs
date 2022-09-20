@@ -13,21 +13,26 @@ using System.Collections.Generic;
 using System.Linq;
 using Helpers;
 using System;
+using TaleWorlds.Localization;
 
 namespace Manhunters
 {
     internal class ManhuntersBehaviour : CampaignBehaviorBase
     {
-        private CharacterObject manhunterCharacter;
-        private Hero manhunterClanLeader;
+        private CharacterObject ManhunterCharacter;
+        private Hero ManhunterClanLeader;
+        private Clan ManhunterClan;
 
-        private Clan manhaunterClan;
-
-        private List<MobileParty> manhunterParties = new List<MobileParty>();
+        private List<MobileParty> ManhunterParties = new List<MobileParty>();
 
         private MobileParty manhunterPartyForDebug;
 
-        private int probabilityOfHidoutSpawn = 50;
+        private int ProbabilityOfHidoutSpawn = 50;
+
+        private int ProbabilityOfSendingManhuntersAfterPlayer = 50;
+
+        private static int _manhunterHireCost = 100;
+
         public override void RegisterEvents()
         {
             CampaignEvents.OnSessionLaunchedEvent.AddNonSerializedListener(this, OnSessionLaunched);
@@ -38,8 +43,20 @@ namespace Manhunters
             CampaignEvents.HourlyTickEvent.AddNonSerializedListener(this, OnHourlyTick);
             CampaignEvents.HourlyTickPartyEvent.AddNonSerializedListener(this, ManhunterPartyHourlyTick);
             CampaignEvents.MobilePartyDestroyed.AddNonSerializedListener(this, OnMobilePartyDestroyed);
+            CampaignEvents.OnQuestCompletedEvent.AddNonSerializedListener(this, OnQuestCompleted);
         }
 
+        private void OnQuestCompleted(QuestBase questBase, QuestBase.QuestCompleteDetails questCompleteDetails)
+        {
+            if(questCompleteDetails == QuestBase.QuestCompleteDetails.FailWithBetrayal)
+            {
+                //InformationManager.DisplayMessage(new InformationMessage("YOU BETRAYED " + questBase.QuestGiver.Name.ToString()));
+
+                int chance = MBRandom.RandomInt(0, 101);
+                //if (chance > probabilityOfSendingManhuntersAfterPlayer)
+                SendManhuntersAfterPlayer(questBase.QuestGiver);
+            }
+        }
 
         private void OnSessionLaunched(CampaignGameStarter campaignGameStarter)
         {
@@ -47,15 +64,17 @@ namespace Manhunters
             CreateManhunterClanLeader();
             GetManhunterClan();
             AddDialogs(campaignGameStarter);
+            SpawnManhunterMobileParty();
         }
 
 
         private void OnNewGameCreated(CampaignGameStarter obj)
         {
+            /*
             CreateManhunterCharacter();
             CreateManhunterClanLeader();
-            GetManhunterClan();
-            SpawnManhunterMobileParty();
+            GetManhunterClan(); 
+            SpawnManhunterMobileParty();*/
         }
 
         private void OnMobilePartyDestroyed(MobileParty destroyedParty, PartyBase destroyerParty)
@@ -81,7 +100,7 @@ namespace Manhunters
         {
             if (mobileParty.PartyComponent is ManhunterPartyComponent manhunterPartyComponent)
             {
-                if(mobileParty.MemberRoster.TotalManCount < manhunterPartyComponent.MinPartySize)
+                if(mobileParty.MemberRoster.TotalManCount < manhunterPartyComponent.MinPartySize && mobileParty.MapEvent == null)
                 {
                     mobileParty.IsActive = false;
                 }
@@ -94,14 +113,8 @@ namespace Manhunters
         {   
             if (manhunterPartyForDebug == null)
             {
-                manhunterPartyForDebug = SpawnManhunterPartyAtPos(new Vec2(490, 290));
-                //CreateOwnedBanditPartyInHideout(new Vec2(490, 290));
+                //manhunterPartyForDebug = SpawnManhunterPartyAtPos(new Vec2(490, 290));
             }
-            /*
-            if (manhunterParties.Count < GetTotalBanditParties())
-            {
-                SpawnManhunterMobileParty();
-            } */
         }
     
 
@@ -109,7 +122,8 @@ namespace Manhunters
         {
 
             if (attackerParty.MobileParty.PartyComponent is ManhunterPartyComponent manhunterPartyComponent)
-            {             
+            {
+                manhunterPartyComponent.DidEncounteredWithPlayer = true;
                 if(manhunterPartyComponent.potentialPrisoners == null)
                 {
                     manhunterPartyComponent.potentialPrisoners = TroopRoster.CreateDummyTroopRoster();
@@ -123,7 +137,7 @@ namespace Manhunters
         {
             foreach (Clan clan in Clan.BanditFactions)
             {
-                FactionManager.DeclareWar(clan, manhaunterClan, true);
+                FactionManager.DeclareWar(clan, ManhunterClan, true);
             }
 
 
@@ -131,28 +145,60 @@ namespace Manhunters
         private void OnDailyTick()
         {
             
-            if (manhunterParties.Count < GetTotalBanditParties())
+            if (ManhunterParties.Count < GetTotalBanditParties())
             {
                 SpawnManhunterMobileParty();
-            } 
+            }
+
+            // Sends manhunters after player, if relation is less than 0
+            //CheckRelationsWithHero();
         }
 
 
         private void AddDialogs(CampaignGameStarter campaignGameStarter)
         {
 
-            campaignGameStarter.AddDialogLine("manhunter_dialog_1",
+            campaignGameStarter.AddDialogLine("neutral_manhunter_dialog_1",
                     "start", "close_window",
                      "{=*}We are manhunters, law enforcers and we hunt the Looters and other Bandits.",
-                    is_talkint_to_manhunter,
+                    is_talking_to_neutral_manhunter,
                     manhunter_encounter_consequence);
+
+            DialogFlow dialog = DialogFlow.CreateDialogFlow("start")
+                .PlayerLine(new TextObject("Why are you following me? Who sent you"))
+                .Condition(is_talking_to_enemy_manhunters)
+                .NpcLine(new TextObject("{betrayed_leader} sent us to take you down. He did not forget that you betrayed him and you will pay for this."))
+                .BeginPlayerOptions()
+                    .PlayerOption(new TextObject("Whatever he is paying I will pay you double to leave me alone."))
+                    .NpcLine(new TextObject("Can you afford " + (_manhunterHireCost * 2).ToString() + " gold ?"))
+                    .Condition(is_talking_to_enemy_manhunters)
+                    .CloseDialog()
+                    .BeginPlayerOptions()
+                        .PlayerOption(new TextObject("Yes, take this and get out of my sight. (-" + (_manhunterHireCost * 2).ToString() + " gold)"))
+                        .Condition(can_give_bribe_condition)
+                        .Consequence(enemy_manhunter_give_bribe_consequence)
+                        .CloseDialog()
+                        .PlayerOption(new TextObject("Nevermind I don't need to pay you I can take down all of you."))
+                        .Condition(is_talking_to_enemy_manhunters)
+                        .NpcLine(new TextObject("Suit yourself."))
+                        .CloseDialog()
+                    .EndPlayerOptions()
+                    .PlayerOption(new TextObject("Fine let's get this over with."))
+                    .CloseDialog()
+                .EndPlayerOptions();
+                
+                
+
+            Campaign.Current.ConversationManager.AddDialogFlow(dialog);
+
+
         }
 
 
 
         private void CreateManhunterClanLeader()
         {
-            manhunterClanLeader = HeroCreator.CreateSpecialHero(manhunterCharacter, faction: manhaunterClan);
+            ManhunterClanLeader = HeroCreator.CreateSpecialHero(ManhunterCharacter, faction: ManhunterClan);
         }
 
 
@@ -162,19 +208,19 @@ namespace Manhunters
             {
                 if (clan.StringId == "cs_manhunters")
                 {
-                    if (manhunterClanLeader != null)
+                    if (ManhunterClanLeader != null)
                     {
-                        clan.SetLeader(manhunterClanLeader);
+                        clan.SetLeader(ManhunterClanLeader);
                     }
                     else
                     {
 
                     }
-                    manhaunterClan = clan;
+                    ManhunterClan = clan;
                 }
             }
 
-            manhaunterClan.IsRebelClan = true;
+            ManhunterClan.IsRebelClan = true;
             DeclareWarBetweenManhuntersAndBandits();
         }
 
@@ -212,7 +258,7 @@ namespace Manhunters
 
             Settlement randomSettlement;
             int chance = MBRandom.RandomInt(0, 101);
-            if(chance > probabilityOfHidoutSpawn)
+            if(chance > ProbabilityOfHidoutSpawn)
             {
                 randomSettlement = SettlementHelper.FindRandomHideout(settlement => true);
             }
@@ -220,12 +266,13 @@ namespace Manhunters
             {
                 randomSettlement = SettlementHelper.FindRandomSettlement(settlement => !settlement.IsHideout);
             }
-            Hero manhunterHero = HeroCreator.CreateSpecialHero(manhunterCharacter, faction: manhaunterClan);
+            Hero manhunterHero = HeroCreator.CreateSpecialHero(ManhunterCharacter, faction: ManhunterClan);
             
-            MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty(manhunterParties.Count.ToString(), manhunterHero, randomSettlement.Position2D, 2, randomSettlement, manhunterHero);
+            MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty(ManhunterParties.Count.ToString(), manhunterHero, randomSettlement.GatePosition, 2, randomSettlement, manhunterHero, false);
             //manhunterMobileParty.GetNumDaysForFoodToLast
             
-            manhunterParties.Add(manhunterMobileParty);
+            ManhunterParties.Add(manhunterMobileParty);
+            
         }
 
         // For testing
@@ -233,16 +280,16 @@ namespace Manhunters
         {
             int randomSettlementIndex = MBRandom.RandomInt(0, Settlement.All.Count);
             Settlement randomSettlement = Settlement.All[randomSettlementIndex];
-            Hero manhunterHero = HeroCreator.CreateSpecialHero(manhunterCharacter, faction: manhaunterClan);
-            MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty(manhunterParties.Count.ToString(), manhunterHero, pos, 2, randomSettlement, manhunterHero);
-            manhunterParties.Add(manhunterMobileParty);
+            Hero manhunterHero = HeroCreator.CreateSpecialHero(ManhunterCharacter, faction: ManhunterClan);
+            MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty(ManhunterParties.Count.ToString(), manhunterHero, pos, 2, randomSettlement, manhunterHero, false);
+            ManhunterParties.Add(manhunterMobileParty);
             return manhunterMobileParty;
         }
 
 
         public void CreateManhunterCharacter()
         {
-            manhunterCharacter = MBObjectManager.Instance.GetObject<CharacterObject>("manhunter_character");
+            ManhunterCharacter = MBObjectManager.Instance.GetObject<CharacterObject>("manhunter_character");
         }
 
         public int GetTotalBanditParties()
@@ -253,7 +300,7 @@ namespace Manhunters
         private void GoToTownToSellPrisoners(MobileParty manhunterParty, ManhunterPartyComponent manhunterPartyComponent)
         {
             Settlement nearestTown = SettlementHelper.FindNearestTown(settlement => true);
-            InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "GOING TO " + nearestTown.Name.ToString() + " TO SELL PRISONERS"));
+            //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "GOING TO " + nearestTown.Name.ToString() + " TO SELL PRISONERS"));
             manhunterPartyComponent.State = ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementForSellingPrisoners;
             manhunterParty.SetMoveGoToSettlement(nearestTown);
         }
@@ -262,7 +309,7 @@ namespace Manhunters
         private void GoToVillageToBuyFood(MobileParty manhunterParty, ManhunterPartyComponent manhunterPartyComponent)
         {
             Settlement nearestVillage = SettlementHelper.FindNearestVillage(settlement => true);
-            InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "GOING TO " + nearestVillage.Name.ToString() + " TO BUY FOOD"));
+            //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "GOING TO " + nearestVillage.Name.ToString() + " TO BUY FOOD"));
             manhunterPartyComponent.State = ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementToBuyFood;
             manhunterParty.SetMoveGoToSettlement(nearestVillage);
         }
@@ -287,6 +334,14 @@ namespace Manhunters
             }
         }
 
+        private void EngageToPlayerParty(MobileParty manhunterParty, ManhunterPartyComponent manhunterPartyComponent)
+        {
+            manhunterPartyComponent.State = ManhunterPartyComponent.ManhunterPartyState.EngagingToPlayer;
+            manhunterParty.SetMoveEngageParty(MobileParty.MainParty);
+            //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "ENGAGIN TO MAIN PARTY"));
+        }
+
+
         public void EngageToBanditParty(MobileParty manhunterParty, ManhunterPartyComponent manhunterPartyComponent)
         {
             MobileParty targetBanditParty = FindNearestBanditParty(manhunterParty);
@@ -294,7 +349,7 @@ namespace Manhunters
             {
                 manhunterPartyComponent.State = ManhunterPartyComponent.ManhunterPartyState.EngagingToBandits;
                 manhunterParty.SetMoveEngageParty(targetBanditParty);
-                InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "ENGAGIN TO BANDIT PARTY"));
+                //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "ENGAGIN TO BANDIT PARTY"));
             }
 
         }
@@ -322,6 +377,8 @@ namespace Manhunters
             return false;
         }
 
+ 
+
         public void TakeAction(MobileParty manhunterParty, ManhunterPartyComponent manhunterPartyComponent)
         {
             if (manhunterPartyComponent.State == ManhunterPartyComponent.ManhunterPartyState.SellingPrisoners || manhunterPartyComponent.State == ManhunterPartyComponent.ManhunterPartyState.BuyingFood)
@@ -336,7 +393,7 @@ namespace Manhunters
             }
 
             if (IsThereBanditPartyInSight(manhunterParty) && manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementToBuyFood
-                && manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementForSellingPrisoners)
+                && manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementForSellingPrisoners && !manhunterPartyComponent.IsAfterPlayer)
             {
                 EngageToBanditParty(manhunterParty, manhunterPartyComponent);
             }
@@ -346,38 +403,32 @@ namespace Manhunters
                 GoToTownToSellPrisoners(manhunterParty, manhunterPartyComponent);
             }
 
-            /*
-            if (manhunterPartyComponent.State == ManhunterPartyComponent.ManhunterPartyState.SellingPrisoners)
+            if (manhunterPartyComponent.IsAfterPlayer && manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementToBuyFood)
             {
-                return;
+                EngageToPlayerParty(manhunterParty, manhunterPartyComponent);
             }
 
-            if(manhunterParty.GetNumDaysForFoodToLast() <= 1)
-            {
-                GoToVillageToBuyFood(manhunterParty, manhunterPartyComponent);
-            }
-
-            if (manhunterParty.PrisonRoster.TotalManCount > 0)
-            {
-                GoToTownToSellPrisoners(manhunterParty, manhunterPartyComponent);
-            }
-
-            if (manhunterParty.PrisonRoster.TotalManCount == 0)
-            {
-
-                MobileParty targetBanditParty = FindNearestBanditParty(manhunterParty);
-                if (targetBanditParty != null)
-                {
-                    manhunterParty.SetMoveEngageParty(targetBanditParty);
-                }
-            } */
         }
 
-        private void SendManhunterBehindPlayer()
+        public void SendManhuntersAfterPlayer(Hero betrayed_leader)
         {
-            
+            Hero manhunterHero = HeroCreator.CreateSpecialHero(CharacterObject.Find("manhunter_character"), faction: Clan.All.Where(clan => clan.StringId == "cs_manhunters").First());
+
+            Settlement manhunterSettlement = betrayed_leader.HomeSettlement;
+
+            TextObject partyName = new TextObject(betrayed_leader.Name.ToString() + "'s Manhunter Party");
+            MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty(partyName.ToStringWithoutClear(), manhunterHero, manhunterSettlement.GatePosition, 2, manhunterSettlement, manhunterHero, true);
+            manhunterMobileParty.SetCustomName(partyName);
+            ((ManhunterPartyComponent)manhunterMobileParty.PartyComponent).SentFrom = betrayed_leader;
+
+            betrayed_leader.ChangeHeroGold(-_manhunterHireCost);
+
+            MBTextManager.SetTextVariable("betrayed_leader", betrayed_leader.Name.ToString());
+
+            ManhunterParties.Add(manhunterMobileParty);
         }
 
+      
         private void SellPrisoners(MobileParty party, ManhunterPartyComponent component)
         {
             if (party.PrisonRoster.TotalManCount > 0)
@@ -396,18 +447,54 @@ namespace Manhunters
         }
 
 
-        private bool is_talkint_to_manhunter()
+        private bool is_talking_to_neutral_manhunter()
         {
             PartyBase encounteredParty = PlayerEncounter.EncounteredParty;
 
+            if (encounteredParty == null) return false;
+
+            if (encounteredParty.MobileParty == null) return false;
+
             if (Hero.OneToOneConversationHero == null) return false;
 
-            if (Hero.OneToOneConversationHero.Clan.StringId == "cs_manhunters") return true;
-
+            if (encounteredParty.MobileParty.PartyComponent is ManhunterPartyComponent manhunterPartyComponent && Hero.OneToOneConversationHero.Clan.StringId == "cs_manhunters")
+            {
+                if (!manhunterPartyComponent.IsAfterPlayer)
+                    return true;
+                else
+                    return false;
+            }
             else
             {
                 return false;
             }
+        }
+
+        private bool is_talking_to_enemy_manhunters()
+        {
+            PartyBase encounteredParty = PlayerEncounter.EncounteredParty;
+
+            if(encounteredParty == null) return false;
+
+            if (encounteredParty.MobileParty == null) return false;
+
+            if (Hero.OneToOneConversationHero == null) return false;
+
+            
+            if (encounteredParty.MobileParty.PartyComponent is ManhunterPartyComponent manhunterPartyComponent && Hero.OneToOneConversationHero.Clan.StringId == "cs_manhunters")
+            {
+                if (manhunterPartyComponent.IsAfterPlayer && !manhunterPartyComponent.DidEncounteredWithPlayer)
+                {
+                    if(manhunterPartyComponent.SentFrom != null)
+                        MBTextManager.SetTextVariable("betrayed_leader", manhunterPartyComponent.SentFrom.Name.ToString());
+                    return true;
+                }
+                else
+                    return false;
+            }
+
+            else
+                return false;
         }
 
         private void manhunter_encounter_consequence()
@@ -419,15 +506,46 @@ namespace Manhunters
             }
         }
 
+        private void enemy_manhunter_give_bribe_consequence()
+        {
+            PartyBase encounteredParty = PlayerEncounter.EncounteredParty;
+            if (encounteredParty != null)
+            {
+                if(encounteredParty.MobileParty.PartyComponent is ManhunterPartyComponent manhunterPartyComponent)
+                {
+                    manhunterPartyComponent.DidEncounteredWithPlayer = true;
+                    manhunterPartyComponent.IsAfterPlayer = false;
+                    Hero.MainHero.ChangeHeroGold(-_manhunterHireCost * 2);
+                    EngageToBanditParty(encounteredParty.MobileParty, manhunterPartyComponent);
+                    PlayerEncounter.LeaveEncounter = true;
+                }
+            }
+        }
+
+        private bool can_give_bribe_condition()
+        {
+            if (!is_talking_to_enemy_manhunters())
+            {
+                return false;
+            }
+
+
+            if(Hero.MainHero.Gold >= _manhunterHireCost * 2)
+            {
+                return true;
+            }
+            return false;
+        }
+
         private void BuyFoodForNDays(MobileParty party, ManhunterPartyComponent manhunterPartyComponent, float daysMin, float daysMax)
         {
-
+            /*
             InformationManager.DisplayMessage(new InformationMessage("BEFORE BUYING FOOD"));
             foreach (var item in party.ItemRoster)
             {
                 InformationManager.DisplayMessage(new InformationMessage(item.GetType().Name.ToString()));
             }
-
+            */
 
             var dailyFoodConsumption = Math.Abs(party.FoodChange);
 
@@ -458,13 +576,92 @@ namespace Manhunters
                 manhunterPartyComponent.Gold -= (int)cost;
             }
 
+            /*
             InformationManager.DisplayMessage(new InformationMessage("AFTER BUYING FOOD"));
             foreach (var item in party.ItemRoster)
             {
                 InformationManager.DisplayMessage(new InformationMessage(item.GetType().Name.ToString()));
             }
+            */
         }
 
+        [CommandLineFunctionality.CommandLineArgumentFunction("remove_food_from_manhunters", "manhunters")]
+        private static string RemoveManhuntersFood(List<string> strings)
+        {
+            var allManhunterParties = MobileParty.All.Where(x => x.PartyComponent is ManhunterPartyComponent);
+
+            foreach (MobileParty party in allManhunterParties.ToList())
+            {
+                foreach(ItemRosterElement item in party.ItemRoster)
+                {
+                    if (item.EquipmentElement.Item.IsFood)
+                    {
+                        party.ItemRoster.Remove(item);
+                    }
+                }
+            }
+
+            return "removed food from manhunters ";
+
+        }
+
+
+        [CommandLineFunctionality.CommandLineArgumentFunction("get_relations", "manhunters")]
+        private static string CheckRelations(List<string> strings)
+        {
+
+            string output = "";
+            var allHeroes = Hero.AllAliveHeroes;
+            foreach (var hero in allHeroes.ToList())
+            {
+                if (Hero.MainHero.GetRelation(hero) < 0)
+                {
+                    //SendManhuntersAfterPlayer(hero);
+                    output += hero.Name.ToString() + ": " + Hero.MainHero.GetRelation(hero).ToString();
+                }
+            }
+
+            return output;
+        }
+
+
+        [CommandLineFunctionality.CommandLineArgumentFunction("decrease_relation_with_random_hero", "manhunters")]
+        private static string DecreaseRelationWithRandomHero(List<string> strings)
+        {
+            Hero mainHero = Hero.MainHero;
+            Hero leader = Hero.AllAliveHeroes.GetRandomElement();
+            int relation = mainHero.GetRelation(leader);
+
+            ChangeRelationAction.ApplyPlayerRelation(leader, -(relation + 1));
+
+            return "relation with " + leader.Name.ToString() + " decreased to " + mainHero.GetRelation(leader).ToString();
+
+        }
+
+
+        [CommandLineFunctionality.CommandLineArgumentFunction("send_manhunters_after_player", "manhunters")]
+        private static string SendManhuntersAfterPlayerCommand(List<string> strings)
+        {
+            Settlement nearestTown = SettlementHelper.FindNearestTown(settlement => true);
+            Hero leader = nearestTown.OwnerClan.Leader;
+
+            Settlement manhunterSettlement = leader.HomeSettlement;
+
+
+            Hero manhunterHero = HeroCreator.CreateSpecialHero(CharacterObject.Find("manhunter_character"), faction: Clan.All.Where(clan => clan.StringId == "cs_manhunters").First());
+
+            TextObject partyName = new TextObject(leader.Name.ToString() + "'s Manhunter Party");
+            MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty(partyName.ToStringWithoutClear(), manhunterHero, manhunterSettlement.GatePosition, 2, manhunterSettlement, manhunterHero, true);
+            manhunterMobileParty.SetCustomName(partyName);
+            ((ManhunterPartyComponent)manhunterMobileParty.PartyComponent).SentFrom = leader;
+
+            leader.ChangeHeroGold(-_manhunterHireCost);
+
+            //MBTextManager.SetTextVariable("betrayed_leader", leader.Name.ToString());
+
+
+            return manhunterMobileParty.Name.ToString() + " spawned from " + manhunterSettlement.Name.ToString();
+        }
 
         [CommandLineFunctionality.CommandLineArgumentFunction("spawn_manhunter_and_bandit", "manhunters")]
         public static string SpawnManhunterAndBandit(List<string> strings)
@@ -474,6 +671,7 @@ namespace Manhunters
             CharacterObject manhunterCharacter = MBObjectManager.Instance.GetObject<CharacterObject>("manhunter_character");
 
             Hero manhunterClanLeader = HeroCreator.CreateSpecialHero(manhunterCharacter, faction: null);
+            
 
             Clan manhaunterClan = null;
 
@@ -496,7 +694,7 @@ namespace Manhunters
             int randomSettlementIndex = MBRandom.RandomInt(0, Settlement.All.Count);
             Settlement randomSettlement = Settlement.All[randomSettlementIndex];
             Hero manhunterHero = HeroCreator.CreateSpecialHero(manhunterCharacter, faction: manhaunterClan);
-            MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty("manhunter party test", manhunterHero, pos, 2, randomSettlement, manhunterHero);
+            MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty("manhunter party test", manhunterHero, pos, 2, randomSettlement, manhunterHero, false);
 
 
 
@@ -560,7 +758,7 @@ namespace Manhunters
             int randomSettlementIndex = MBRandom.RandomInt(0, Settlement.All.Count);
             Settlement randomSettlement = Settlement.All[randomSettlementIndex];
             Hero manhunterHero = HeroCreator.CreateSpecialHero(manhunterCharacter, faction: manhaunterClan);
-            MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty("manhunter party test", manhunterHero, pos, 2, randomSettlement, manhunterHero);
+            MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty("manhunter party test", manhunterHero, pos, 2, randomSettlement, manhunterHero, false);
             return "spawned manhunter party";
         }
 
@@ -601,6 +799,16 @@ namespace Manhunters
             return "spawned bandit party";
         }
 
-      
+        [CommandLineFunctionality.CommandLineArgumentFunction("fail_quest_with_betrayel", "manhunters")]
+        public static string CompleteQuestWithBetrayel(List<string> strings)
+        {
+            
+            QuestBase questBase = Campaign.Current.QuestManager.Quests.Where(q => q.QuestGiver != null).First();
+            questBase.CompleteQuestWithBetrayal();
+
+            return questBase.QuestGiver.Name.ToString() + " sent manhunters from " + questBase.QuestGiver.HomeSettlement.Name.ToString();
+        }
+
+
     }
 }
