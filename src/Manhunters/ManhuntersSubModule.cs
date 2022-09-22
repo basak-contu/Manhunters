@@ -23,7 +23,8 @@ namespace Manhunters
             {
                 var initializer = (CampaignGameStarter)gameStarterObject;
 
-                initializer.AddBehavior(new ManhuntersBehaviour());
+                initializer.AddBehavior(new ManhuntersCampaignBehavior());
+                initializer.AddModel(new ManhunterPartySizeLimitModel());
             }
         }
     }
