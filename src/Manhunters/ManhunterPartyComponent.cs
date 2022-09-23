@@ -53,8 +53,8 @@ namespace Manhunters
         [CachedData]
         private TextObject _cachedName;
 
-        [SaveableField(30)]
-        private Hero _leader;
+        /*[SaveableField(30)]
+        private Hero _leader; */
 
         public override Hero PartyOwner => Owner;
 
@@ -76,10 +76,10 @@ namespace Manhunters
             private set;
         }
 
-        public override Hero Leader => _leader;
+        //public override Hero Leader => _leader;
 
-        public int MinPartySize { get; set; } = 5;
-        public int MaxPartySize { get; set; } = 25;
+        public int MinPartySize { get;} = 5;
+        public int MaxPartySize { get;} = 25;
 
         //public TroopRoster potentialPrisoners;
 
@@ -139,14 +139,16 @@ namespace Manhunters
         private TextObject GetPartyName()
         {
             TextObject textObject = new TextObject("manhunter party");
-            textObject.SetCharacterProperties("TROOP", Owner.CharacterObject);    
+            //textObject.SetCharacterProperties("TROOP", Owner.CharacterObject);    
+            textObject.SetCharacterProperties("TROOP", CharacterObject.Find("manhunter_character"));
             return textObject;
         }
 
         private void InitializeManhunterPartyProperties(MobileParty mobileParty, Vec2 position, float spawnRadius, Settlement spawnSettlement)
         {
-            mobileParty.AddElementToMemberRoster(Owner.CharacterObject, 1, insertAtFront: true);
-            mobileParty.ActualClan = Owner.Clan;
+            //mobileParty.AddElementToMemberRoster(Owner.CharacterObject, 1, insertAtFront: true);
+            //mobileParty.ActualClan = Owner.Clan;
+            mobileParty.ActualClan = Clan.FindFirst(clan => clan.StringId == "cs_manhunters");
 
             EquipmentElement saddleHorse = new EquipmentElement(MBObjectManager.Instance.GetObject<ItemObject>("saddle_horse"));
             EquipmentElement sumpterHorse = new EquipmentElement(MBObjectManager.Instance.GetObject<ItemObject>("sumpter_horse"));
@@ -155,21 +157,24 @@ namespace Manhunters
 
             TroopRoster memberRoster = new TroopRoster(mobileParty.Party);
 
-            CharacterObject troopsWithHorses = MBObjectManager.Instance.GetObject<CharacterObject>("manhunter_character");
+            //CharacterObject troopsWithHorses = MBObjectManager.Instance.GetObject<CharacterObject>("manhunter_character");
+            CharacterObject troopsWithHorses = CharacterObject.Find("manhunter_character");
             troopsWithHorses.Equipment.AddEquipmentToSlotWithoutAgent(EquipmentIndex.Horse, 
                 MBRandom.RandomInt(0, 2) == 0 ? saddleHorse : sumpterHorse);
 
-            memberRoster.AddToCounts(troopsWithHorses, MBRandom.RandomInt(MinPartySize, MaxPartySize));
+            memberRoster.AddToCounts(troopsWithHorses, MBRandom.RandomInt(MinPartySize, (int)Campaign.Current.Models.PartySizeLimitModel.GetPartyMemberSizeLimit(mobileParty.Party).ResultNumber));
 
             TroopRoster prisonerRoster = new TroopRoster(mobileParty.Party);
 
             mobileParty.InitializeMobilePartyAroundPosition(memberRoster, prisonerRoster, position, spawnRadius, 0f);
 
-            mobileParty.Aggressiveness = 0.9f + 0.1f * (float)Owner.GetTraitLevel(DefaultTraits.Valor) - 0.05f * (float)Owner.GetTraitLevel(DefaultTraits.Mercy);
+            //mobileParty.Aggressiveness = 0.9f + 0.1f * (float)Owner.GetTraitLevel(DefaultTraits.Valor) - 0.05f * (float)Owner.GetTraitLevel(DefaultTraits.Mercy);
+            mobileParty.Aggressiveness = MBRandom.RandomFloatRanged(0f, 1f);
+
             mobileParty.ItemRoster.Add(new ItemRosterElement(DefaultItems.Grain, MBRandom.RandomInt(15, 30)));
             //mobileParty.ItemRoster.Add(new ItemRosterElement)
 
-            Owner.PassedTimeAtHomeSettlement = (int)(MBRandom.RandomFloat * 100f);
+           // Owner.PassedTimeAtHomeSettlement = (int)(MBRandom.RandomFloat * 100f);
             
             if (spawnSettlement != null)
             {

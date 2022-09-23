@@ -21,8 +21,7 @@ namespace Manhunters
         private void GoToTownToSellPrisoners(MobileParty manhunterParty, ManhunterPartyComponent manhunterPartyComponent)
         {
             Settlement nearestTown = SettlementHelper.FindNearestTown(settlement => true);
-            //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "GOING TO " + nearestTown.Name.ToString() + " TO SELL PRISONERS"));
-            InformationManager.DisplayMessage(new InformationMessage(manhunterParty.Name.ToString() + " party is " + "GOING TO " + nearestTown.Name.ToString() + " TO SELL PRISONERS"));
+            //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.Name.ToString() + " party is " + "GOING TO " + nearestTown.Name.ToString() + " TO SELL PRISONERS"));
             manhunterPartyComponent.State = ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementForSellingPrisoners;
             manhunterParty.SetMoveGoToSettlement(nearestTown);
         }
@@ -32,8 +31,7 @@ namespace Manhunters
         {
             //Settlement nearestVillage = SettlementHelper.FindNearestVillage(settlement => true);
             Settlement nearestFood = SettlementHelper.FindNearestSettlement(settlement => (settlement.IsTown || settlement.IsVillage) && DoesSettlementHaveFood(settlement));
-            //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "GOING TO " + nearestFood.Name.ToString() + " TO BUY FOOD"));
-            InformationManager.DisplayMessage(new InformationMessage(manhunterParty.Name.ToString() + " party is " + "GOING TO " + nearestFood.Name.ToString() + " TO BUY FOOD"));
+            //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.Name.ToString() + " party is " + "GOING TO " + nearestFood.Name.ToString() + " TO BUY FOOD"));
             manhunterPartyComponent.State = ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementToBuyFood;
             manhunterParty.SetMoveGoToSettlement(nearestFood);
         }
@@ -41,9 +39,18 @@ namespace Manhunters
         private void EngageToPlayerParty(MobileParty manhunterParty, ManhunterPartyComponent manhunterPartyComponent)
         {
             manhunterPartyComponent.State = ManhunterPartyComponent.ManhunterPartyState.EngagingToPlayer;
-            manhunterParty.SetMoveEngageParty(MobileParty.MainParty);
-            //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "ENGAGIN TO MAIN PARTY"));
-            InformationManager.DisplayMessage(new InformationMessage(manhunterParty.Name.ToString() + " party is " + "ENGAGIN TO MAIN PARTY"));
+            MobileParty playerParty = MobileParty.MainParty;
+            if(playerParty.CurrentSettlement != null)
+            {
+                manhunterParty.SetMovePatrolAroundSettlement(MobileParty.MainParty.CurrentSettlement);
+                //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.Name.ToString() + " party is " + "WAITING FOR PLAYER"));
+            }
+            else
+            {
+                manhunterParty.SetMoveEngageParty(MobileParty.MainParty);
+                //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.Name.ToString() + " party is " + "ENGAGIN TO MAIN PARTY"));
+            }
+           
 
         }
 
@@ -55,8 +62,7 @@ namespace Manhunters
             {
                 manhunterPartyComponent.State = ManhunterPartyComponent.ManhunterPartyState.EngagingToBandits;
                 manhunterParty.SetMoveEngageParty(targetBanditParty);
-                //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.LeaderHero.Name.ToString() + " party is " + "ENGAGIN TO BANDIT PARTY"));
-                InformationManager.DisplayMessage(new InformationMessage(manhunterParty.Name.ToString() + " party is " + "ENGAGIN TO BANDIT PARTY"));
+                //InformationManager.DisplayMessage(new InformationMessage(manhunterParty.Name.ToString() + " party is " + "ENGAGIN TO BANDIT PARTY"));
             }
 
         }
@@ -119,12 +125,13 @@ namespace Manhunters
                 EngageToBanditParty(manhunterParty, manhunterPartyComponent);
             } */
             if ( manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementToBuyFood
-              && manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementForSellingPrisoners && !_betrayedLeaderAndManhunter.ContainsValue(manhunterParty))
+              && manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementForSellingPrisoners && !_betrayedLeaderAndManhunter.ContainsKey(manhunterParty))
             {
                 EngageToBanditParty(manhunterParty, manhunterPartyComponent);
             }
 
-            if (manhunterParty.PrisonRoster.TotalManCount > 0 && manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementToBuyFood)
+            if (manhunterParty.PrisonRoster.TotalManCount > 0 && manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementToBuyFood && 
+                !_betrayedLeaderAndManhunter.ContainsKey(manhunterParty))
             {
                 GoToTownToSellPrisoners(manhunterParty, manhunterPartyComponent);
             }
@@ -134,9 +141,16 @@ namespace Manhunters
             {
                 EngageToPlayerParty(manhunterParty, manhunterPartyComponent);
             } */
-            if (_betrayedLeaderAndManhunter.ContainsValue(manhunterParty) && manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementToBuyFood)
+            if (_betrayedLeaderAndManhunter.ContainsKey(manhunterParty) && manhunterPartyComponent.State != ManhunterPartyComponent.ManhunterPartyState.GoingToSettlementToBuyFood )
             {
-                EngageToPlayerParty(manhunterParty, manhunterPartyComponent);
+                if (!manhunterParty.PrisonRoster.Contains(CharacterObject.PlayerCharacter))
+                {
+                    EngageToPlayerParty(manhunterParty, manhunterPartyComponent);
+                }
+                else
+                {
+                    EngageToBanditParty(manhunterParty, manhunterPartyComponent);
+                }
             }
             
         }
@@ -156,7 +170,7 @@ namespace Manhunters
 
             MBTextManager.SetTextVariable("BETRAYED_LEADER", betrayed_leader.Name.ToString());
 
-            _betrayedLeaderAndManhunter.Add(betrayed_leader, manhunterMobileParty);
+            _betrayedLeaderAndManhunter.Add(manhunterMobileParty, betrayed_leader);
             //_manhunterPartiesCache.Add(manhunterMobileParty);
         }
     }
