@@ -164,14 +164,11 @@ namespace Manhunters
             TextObject partyName = new TextObject(betrayed_leader.Name.ToString() + "'s Manhunter Party");
             MobileParty manhunterMobileParty = ManhunterPartyComponent.CreateManhunterParty(partyName.ToStringWithoutClear(), manhunterHero, manhunterSettlement.GatePosition, 2, manhunterSettlement);
             manhunterMobileParty.SetCustomName(partyName);
-            //((ManhunterPartyComponent)manhunterMobileParty.PartyComponent).SentFrom = betrayed_leader;
-
-            betrayed_leader.ChangeHeroGold(-ManhunterHireCost);
 
             MBTextManager.SetTextVariable("BETRAYED_LEADER", betrayed_leader.Name.ToString());
 
+            //InformationManager.DisplayMessage(new InformationMessage(betrayed_leader.Name.ToString() + " sent manhunters from " + betrayed_leader.HomeSettlement.Name.ToString()));
             _betrayedLeaderAndManhunter.Add(manhunterMobileParty, betrayed_leader);
-            //_manhunterPartiesCache.Add(manhunterMobileParty);
         }
     }
 }
