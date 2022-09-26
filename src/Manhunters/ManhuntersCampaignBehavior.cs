@@ -193,7 +193,7 @@ namespace Manhunters
         {
             if (mobileParty.PartyComponent is ManhunterPartyComponent manhunterPartyComponent)
             {
-                if (mobileParty.MemberRoster.TotalManCount < manhunterPartyComponent.MinPartySize && mobileParty.MapEvent == null)
+                if (mobileParty.MemberRoster.TotalManCount < ManhunterPartyComponent.MinPartySize && mobileParty.MapEvent == null)
                 {
                     //mobileParty.IsActive = false;
                     DestroyPartyAction.Apply(null, mobileParty);

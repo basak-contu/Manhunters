@@ -13,8 +13,9 @@ namespace Manhunters
             var num = base.GetPartyMemberSizeLimit(party, includeDescriptions);
             if (party.MobileParty.PartyComponent is ManhunterPartyComponent)
             {
-                num.Add(25);
+                num.LimitMax(25);
             }
+            
             return num;
         }
 

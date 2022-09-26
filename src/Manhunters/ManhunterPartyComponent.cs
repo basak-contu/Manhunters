@@ -69,7 +69,7 @@ namespace Manhunters
             private set;
         }
 
-        public int MinPartySize { get;} = 5;
+        public const int MinPartySize = 5;
 
         private const string ManhunterClanStringId = "cs_manhunters";
         private const string ManhunterCharacterStringId = "manhunter_character";
@@ -119,10 +119,9 @@ namespace Manhunters
             troopsWithHorses.Equipment.AddEquipmentToSlotWithoutAgent(EquipmentIndex.Horse, 
                 MBRandom.RandomInt(0, 2) == 0 ? saddleHorse : sumpterHorse);
 
-            memberRoster.AddToCounts(troopsWithHorses, MBRandom.RandomInt(MinPartySize, (int)Campaign.Current.Models.PartySizeLimitModel.GetPartyMemberSizeLimit(mobileParty.Party).ResultNumber));
-
+            memberRoster.AddToCounts(troopsWithHorses, MBRandom.RandomInt(MinPartySize, (int)new ManhunterPartySizeLimitModel().GetPartyMemberSizeLimit(mobileParty.Party).ResultNumber));
             TroopRoster prisonerRoster = new TroopRoster(mobileParty.Party);
-
+            ManhunterPartySizeLimitModel manhunterPartySizeLimitModel = new ManhunterPartySizeLimitModel();
             mobileParty.InitializeMobilePartyAroundPosition(memberRoster, prisonerRoster, position, spawnRadius, 0f);
 
             mobileParty.Aggressiveness = MBRandom.RandomFloatRanged(0f, 1f);
