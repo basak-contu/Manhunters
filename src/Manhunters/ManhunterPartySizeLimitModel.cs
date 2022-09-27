@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using TaleWorlds.CampaignSystem;
+﻿using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.GameComponents;
 using TaleWorlds.CampaignSystem.Party;
 
@@ -15,10 +13,7 @@ namespace Manhunters
             {
                 num.LimitMax(25);
             }
-            
             return num;
         }
-
-
     }
 }
