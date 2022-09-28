@@ -93,7 +93,7 @@ namespace Manhunters
 
         private TextObject GetPartyName()
         {
-            TextObject textObject = new TextObject("manhunter party");
+            TextObject textObject = new TextObject("{=*}Manhunter Party");
             textObject.SetCharacterProperties("TROOP", CharacterObject.Find(ManhunterCharacterStringId));
             return textObject;
         }

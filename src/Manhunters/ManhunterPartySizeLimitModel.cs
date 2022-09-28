@@ -12,6 +12,7 @@ namespace Manhunters
             if (party.MobileParty.PartyComponent is ManhunterPartyComponent)
             {
                 num.LimitMax(25);
+                return num;
             }
             return num;
         }
