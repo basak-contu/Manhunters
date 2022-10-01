@@ -113,13 +113,9 @@ namespace Manhunters
             mobileParty.InitializeMobilePartyAroundPosition(memberRoster, prisonerRoster, position, spawnRadius, 0f);
             mobileParty.Aggressiveness = MBRandom.RandomFloat;
             mobileParty.ItemRoster.Add(new ItemRosterElement(DefaultItems.Grain, MBRandom.RandomInt(15, 30)));
-            
-            if (spawnSettlement != null)
-            {
-                mobileParty.Ai.SetAIState(AIState.VisitingNearbyTown);
-                mobileParty.SetMoveGoToSettlement(spawnSettlement);
-            }
-            mobileParty.Ai.SetAIState(AIState.VisitingVillage);
+            mobileParty.Ai.SetAIState(AIState.PatrollingAroundLocation);
+            mobileParty.SetMovePatrolAroundPoint(position);
+            mobileParty.Ai.SetDoNotMakeNewDecisions(false);
         }
     }
 }

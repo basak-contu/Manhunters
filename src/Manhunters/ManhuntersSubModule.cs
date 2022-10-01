@@ -19,6 +19,9 @@ namespace Manhunters
             {
                 var initializer = (CampaignGameStarter)gameStarterObject;
                 initializer.AddBehavior(new ManhuntersCampaignBehavior());
+                initializer.AddBehavior(new ManhunterPartyEnageToPartyBehavior());
+                initializer.AddBehavior(new ManhunterPartyVisitSettlementToSellPrisonersBehavior());
+                initializer.AddBehavior(new ManhunterPartyVisitSettlementToBuyFood());
                 initializer.AddModel(new ManhunterPartySizeLimitModel());
             }
         }
